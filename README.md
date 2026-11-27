@@ -1,297 +1,98 @@
-# Desafio Técnico — Engenharia de Dados e IA
+# Desafio Técnico — Radar Inteligente de Fornecedores
 
-## Radar Inteligente de Fornecedores
+## Contexto
 
-### Contexto
-
-A área de Compras recebe mensalmente planilhas contendo CNPJs de possíveis fornecedores.
-
-Atualmente, um analista consulta cada CNPJ manualmente, copia as informações cadastrais, identifica problemas e prepara um resumo para avaliação.
-
-Esse processo é demorado, repetitivo, sujeito a erros e não oferece uma visão consolidada dos fornecedores.
+A área de Compras recebe listas de CNPJs e consulta cada empresa manualmente para verificar seus dados cadastrais. O processo toma tempo, gera retrabalho e dificulta uma visão consolidada dos fornecedores.
 
 ## Objetivo
 
-Desenvolver um MVP que utilize dados públicos de CNPJ, consultados por meio da [BrasilAPI](https://brasilapi.com.br/docs), para automatizar parte desse processo.
+Em **6 a 8 horas**, crie uma solução inicial que automatize parte dessa consulta usando dados públicos da [BrasilAPI](https://brasilapi.com.br/docs). O foco é demonstrar suas decisões e entregar algo simples, executável e bem explicado. Não é necessário criar uma solução pronta para produção.
 
-A solução deverá permitir que uma pessoa da área de Compras:
+Você pode escolher linguagem, armazenamento, interface e abordagem de inteligência artificial. Não é necessário usar Docker, geração aumentada por recuperação (RAG) ou criar um painel sofisticado.
 
-- Consulte uma lista de CNPJs;
-- Identifique registros que precisam de atenção;
-- Visualize informações consolidadas;
-- Compreenda os dados sem depender de conhecimento técnico;
-- Utilize IA para consultar ou interpretar as informações.
+## Escopo obrigatório
 
-Você terá liberdade para escolher linguagem, arquitetura, armazenamento, interface e abordagem de IA.
+### 1. Entrada e processamento
 
-## Entrada esperada
+Receba um arquivo CSV com a coluna `cnpj` obrigatória e a coluna `categoria_informada` opcional. Use uma amostra pequena com pelo menos:
 
-A solução deverá receber uma planilha CSV contendo, no mínimo:
+- 5 CNPJs válidos;
+- 1 CNPJ duplicado;
+- 2 registros inválidos ou não encontrados.
 
-```csv
-cnpj,categoria_informada
-```
+O processamento deve:
 
-Para a demonstração, utilize uma massa com:
+- Padronizar e validar os CNPJs;
+- Consultar a BrasilAPI e registrar data e hora da consulta;
+- Tratar duplicidades, registros não encontrados e erros temporários;
+- Gerar uma saída consolidada que não duplique resultados quando o processo for executado novamente.
 
-- Pelo menos 10 CNPJs válidos;
-- Pelo menos um CNPJ duplicado;
-- Pelo menos dois registros inválidos ou inexistentes.
+Após remover a formatação, considere CNPJs com 14 caracteres alfanuméricos. Consulte somente os dados da amostra. Para que a demonstração e os testes não dependam da disponibilidade da API, você pode usar respostas salvas ou simuladas, desde que isso fique documentado.
 
-A coluna `categoria_informada` é opcional e pode representar a categoria pela qual o fornecedor foi apresentado à área de Compras.
+### 2. Resultado para Compras
 
-## Parte 1 — Pipeline de dados
+Apresente uma tabela ou relatório simples com:
 
-Construa um processo que:
+- CNPJ informado e CNPJ padronizado;
+- Razão social, situação cadastral, data de abertura e atividade econômica principal;
+- Município, estado e data da consulta;
+- Situação do processamento e motivo do erro, quando houver.
 
-1. Leia a planilha de entrada;
-2. Normalize e valide os CNPJs;
-3. Consulte os dados disponíveis na BrasilAPI;
-4. Trate duplicidades, registros inválidos e consultas sem resultado;
-5. Organize e transforme as informações;
-6. Gere uma base consolidada;
-7. Registre quando cada consulta foi realizada;
-8. Possa ser executado novamente sem gerar duplicidades indevidas.
+Inclua um resumo com total de entradas, empresas processadas com sucesso, duplicidades, erros ou pendências e uma lista dos registros que precisam de revisão. Uma distribuição por situação cadastral ou estado é suficiente.
 
-Considere situações como:
+Armazene somente os dados necessários. Não inclua informações pessoais de sócios sem justificar a necessidade.
 
-- CNPJ com ou sem pontuação;
-- Registros duplicados;
-- CNPJ inválido;
-- Empresa não encontrada;
-- Indisponibilidade ou erro na API;
-- Resposta incompleta;
-- Reexecução do processo.
+### 3. Uso de inteligência artificial
 
-Não esperamos uma arquitetura pronta para produção, mas queremos entender como você pensou em confiabilidade, manutenção e evolução.
+Implemente uma função simples que ajude a consultar ou resumir os dados, por exemplo: “Quantos fornecedores foram processados?” ou “Quais registros precisam de revisão?”.
 
-## Parte 2 — Saída de dados
+As respostas devem usar a base processada, indicar quando faltarem dados e não aprovar nem reprovar fornecedores. Se usar uma chave de serviço, inclua um exemplo de configuração e instruções para configurá-la; nunca inclua senhas ou chaves no repositório.
 
-A base consolidada deverá apresentar, no mínimo:
+### 4. Estimativa de benefício
 
-- CNPJ original;
-- CNPJ normalizado;
-- Razão social;
-- Nome fantasia;
-- Situação cadastral;
-- Data de abertura;
-- Atividade econômica principal;
-- Município;
-- Estado;
-- Data e hora da consulta;
-- Status do processamento;
-- Motivo do erro, quando aplicável.
+Use este cenário mensal:
 
-Outros campos poderão ser utilizados caso sejam relevantes para o problema.
+- 500 CNPJs;
+- 8 minutos de consulta manual por CNPJ;
+- 10% dos registros geram 5 minutos adicionais de retrabalho;
+- Custo do analista: R$ 70 por hora;
+- Coordenação: 3 horas para consolidar resultados, a R$ 110 por hora;
+- Investimento inicial estimado: R$ 15.000.
 
-Também esperamos uma saída separada ou facilmente identificável para:
+Considere o retrabalho como tempo adicional. Com essa premissa, o processo atual representa **73,8 horas e R$ 5.288,33 por mês**.
 
-- CNPJs inválidos;
-- Registros duplicados;
-- Empresas não encontradas;
-- Consultas que falharam;
-- Registros que precisam de revisão humana.
+Estime o custo mensal futuro, incluindo o trabalho que continuará sendo feito por pessoas e os custos de infraestrutura e inteligência artificial. Apresente a economia mensal, o retorno sobre o investimento em 12 meses e o prazo de retorno. Identifique suas premissas.
 
-Utilize apenas os dados necessários para resolver o problema. Caso a fonte retorne informações pessoais ou de sócios, avalie se elas realmente precisam ser armazenadas.
+Fórmulas:
 
-## Parte 3 — Visão para o negócio
+- Custo futuro mensal = custo do trabalho restante + infraestrutura e inteligência artificial;
+- Economia mensal = R$ 5.288,33 − custo futuro mensal;
+- Benefício líquido em 12 meses = (economia mensal × 12) − R$ 15.000;
+- Retorno sobre o investimento = benefício líquido ÷ R$ 15.000 × 100;
+- Prazo de retorno = R$ 15.000 ÷ economia mensal, se a economia for positiva.
 
-A solução deverá oferecer uma visão simples para a área de Compras contendo, pelo menos:
+## O que entregar
 
-- Total de CNPJs recebidos;
-- Total processado com sucesso;
-- Quantidade de erros ou pendências;
-- Distribuição por situação cadastral;
-- Distribuição por estado;
-- Distribuição por atividade econômica;
-- Lista de registros que precisam de revisão.
+- Código e arquivo de exemplo;
+- Instruções para instalar e executar;
+- Uma amostra do resultado;
+- Testes ou verificações básicas;
+- Decisões técnicas, premissas dos cálculos, limitações e próximos passos.
 
-A apresentação pode ser feita por meio de:
+Prepare uma demonstração de até **5 minutos** para uma pessoa da área de Compras. Depois, conversaremos por até **10 minutos** sobre suas decisões. Se algo ficar incompleto, explique o que faltou e como priorizaria a próxima etapa.
 
-- Aplicação simples;
-- Dashboard;
-- Relatório;
-- Outra interface que considere adequada.
+O uso de ferramentas de inteligência artificial durante o desenvolvimento é permitido. Conte quais ferramentas usou, como validou os resultados e quais decisões tomou.
 
-Não esperamos um front-end sofisticado. Um notebook pode apoiar a análise, mas não deve ser a única forma de apresentação para o usuário de negócio.
+## Como será avaliado
 
-## Parte 4 — Aplicação de IA
+Cada dimensão recebe nota de 0 a 2: **0** = não demonstrado; **1** = parcial; **2** = claro e bem justificado.
 
-Implemente uma funcionalidade de IA que ajude a área de Compras a compreender ou consultar os dados processados.
+| Dimensão | O que vamos observar |
+|---|---|
+| Processamento e dados | Padronização, qualidade, tratamento de erros e reexecução |
+| Resultado para Compras | Clareza das informações e identificação de pendências |
+| Inteligência artificial responsável | Respostas úteis, baseadas nos dados e sem inventar informações |
+| Benefício para o negócio | Premissas e cálculos de custo, economia e retorno |
+| Execução e comunicação | Projeto executável, decisões explicadas e limitações reconhecidas |
 
-Pode ser, por exemplo:
-
-- Um assistente em linguagem natural;
-- Uma busca inteligente;
-- Um gerador de resumos cadastrais;
-- Outra abordagem que considere adequada para a área de Compras.
-
-Não é obrigatório utilizar RAG. Esperamos que você escolha e justifique a abordagem mais apropriada para o problema.
-
-A solução deverá ser capaz de responder perguntas semelhantes a:
-
-- “Quantos fornecedores foram processados com sucesso?”
-- “Quais fornecedores estão ativos em São Paulo?”
-- “Resuma as informações do CNPJ X.”
-- “Quais registros precisam de revisão e por quê?”
-- “Quais são as principais atividades econômicas encontradas?”
-
-As respostas devem utilizar apenas as informações disponíveis na base processada.
-
-Quando uma informação não estiver disponível, a solução deverá informar isso claramente, sem inventar uma resposta. Sempre que possível, identifique quais registros ou campos sustentam a resposta.
-
-A IA não deverá aprovar ou reprovar fornecedores automaticamente.
-
-## Parte 5 — Eficiência operacional e ROI
-
-Além da solução técnica, esperamos uma análise simplificada do benefício gerado para o negócio.
-
-Considere o seguinte cenário atual:
-
-- 500 CNPJs consultados por mês;
-- 8 minutos de trabalho manual por CNPJ;
-- 10% dos registros geram retrabalho;
-- Cada retrabalho consome aproximadamente 5 minutos;
-- Custo operacional estimado do analista: R$ 70 por hora;
-- Um coordenador dedica 3 horas por mês à consolidação dos resultados;
-- Custo estimado do coordenador: R$ 110 por hora;
-- Investimento estimado para implantação da solução em produção: R$ 15.000.
-
-Com base nesses dados e nas premissas da sua solução, estime os seguintes indicadores:
-
-- Custo mensal estimado do processo atual;
-- Horas consumidas atualmente;
-- Tempo estimado por CNPJ com a nova solução;
-- Intervenção humana que continuará necessária;
-- Horas economizadas por mês;
-- Percentual de redução do tempo operacional;
-- Capacidade adicional gerada para a equipe;
-- Custo mensal de infraestrutura e IA;
-- Economia bruta mensal e anual;
-- Benefício financeiro líquido;
-- ROI estimado em 12 meses;
-- Prazo estimado para retorno do investimento.
-
-### Fórmulas sugeridas
-
-**Economia operacional mensal**
-
-> Custo mensal atual − custo mensal futuro
-
-**Benefício em 12 meses**
-
-> Economia operacional mensal × 12
-
-**Benefício líquido em 12 meses**
-
-> Benefício em 12 meses − investimento inicial
-
-**ROI em 12 meses**
-
-> Benefício líquido ÷ investimento inicial × 100
-
-**Prazo de retorno**
-
-> Investimento inicial ÷ economia operacional mensal
-
-As premissas utilizadas deverão estar claramente identificadas. Caso algum número seja estimado, explique como chegou a ele.
-
-Não é obrigatório demonstrar aumento de receita. Para este caso, o principal benefício esperado é a redução de esforço e custo operacional.
-
-Possíveis ganhos de receita ou redução de risco só devem ser monetizados quando houver uma justificativa clara.
-
-## Requisitos de qualidade
-
-Esperamos encontrar:
-
-- Instruções claras para executar o projeto;
-- Organização e legibilidade do código;
-- Tratamento básico de erros;
-- Validações ou testes automatizados;
-- Registro das principais decisões;
-- Separação entre configuração e código;
-- Ausência de senhas ou chaves no repositório;
-- Arquivo `.env.example`, caso utilize variáveis de ambiente;
-- Uma pequena amostra da saída;
-- Limitações conhecidas;
-- Possíveis evoluções da solução.
-
-A solução deverá poder ser executada por outra pessoa seguindo as instruções do README.
-
-Docker pode ser utilizado, mas não é obrigatório.
-
-## Uso de ferramentas de IA no desenvolvimento
-
-O uso de ferramentas de IA durante o desenvolvimento é permitido.
-
-Inclua na documentação:
-
-- Quais ferramentas foram utilizadas;
-- Em quais partes elas ajudaram;
-- Como o código ou conteúdo gerado foi validado;
-- Quais decisões foram tomadas por você.
-
-Não estamos avaliando memorização de sintaxe. Queremos entender seu raciocínio, suas decisões e como utiliza ferramentas de IA de forma responsável.
-
-## Entrega
-
-O repositório deverá conter:
-
-- Código-fonte;
-- Massa de dados utilizada na demonstração;
-- Instruções para instalação e execução;
-- Pipeline de consulta e tratamento;
-- Saídas geradas;
-- Funcionalidade de IA;
-- Testes ou validações;
-- Explicação da arquitetura;
-- Premissas e cálculos de ROI;
-- Limitações e próximos passos;
-
-Não inclua chaves, senhas ou informações sensíveis no repositório.
-
-## Apresentação
-
-Prepare uma apresentação de até 10 minutos, direcionada a um coordenador da área de Compras.
-
-A apresentação deverá explicar:
-
-1. Qual problema está sendo resolvido;
-2. Como o processo funciona atualmente;
-3. Como a solução proposta funciona;
-4. O que deixa de ser feito manualmente;
-5. Quanto tempo pode ser economizado;
-6. Qual o benefício estimado em reais;
-7. Em quanto tempo o investimento pode se pagar;
-8. Quais são as limitações e os riscos;
-9. O que seria necessário para levar a solução à produção;
-10. Quais são os próximos passos recomendados.
-
-Evite uma apresentação excessivamente técnica. Detalhes de arquitetura e código poderão ser explorados durante as perguntas.
-
-Após a apresentação, teremos aproximadamente 20 minutos para conversar sobre a implementação e as decisões tomadas.
-
-## Tempo sugerido
-
-Sugerimos dedicar entre 6 e 8 horas ao desafio.
-
-Não esperamos uma solução completa de produção. Preferimos uma entrega menor, funcional e bem explicada a uma implementação extensa e sem clareza.
-
-Caso alguma parte não seja concluída, documente:
-
-- O que ficou pendente;
-- Por que não foi concluído;
-- Como você implementaria essa parte;
-- Qual seria sua prioridade em uma próxima etapa.
-
-## O que será avaliado
-
-- Compreensão do problema e do usuário;
-- Organização e qualidade do pipeline de dados;
-- Tratamento de erros e qualidade dos dados;
-- Clareza das decisões técnicas;
-- Aplicação útil e responsável de IA;
-- Capacidade de mensurar eficiência e retorno financeiro;
-- Organização do código e da documentação;
-- Comunicação com um público não técnico;
-- Identificação de riscos, limitações e próximos passos.
+Não serão avaliadas a linguagem, a escolha do fornecedor de inteligência artificial ou a ferramenta de visualização. A disponibilidade da BrasilAPI no dia da apresentação também não será avaliada.
