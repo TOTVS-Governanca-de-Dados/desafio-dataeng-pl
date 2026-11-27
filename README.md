@@ -8,7 +8,7 @@ A área de Compras recebe listas de CNPJs e consulta cada empresa manualmente pa
 
 Em **6 a 8 horas**, crie uma solução inicial que automatize parte dessa consulta usando dados públicos da [BrasilAPI](https://brasilapi.com.br/docs). O foco é demonstrar suas decisões e entregar algo simples, executável e bem explicado. Não é necessário criar uma solução pronta para produção.
 
-Você pode escolher linguagem, armazenamento, interface e abordagem de inteligência artificial. Não é necessário usar Docker, geração aumentada por recuperação (RAG) ou criar um painel sofisticado.
+Não há tecnologias obrigatórias: escolha a linguagem, o framework, o armazenamento e a abordagem de inteligência artificial que melhor resolvam o problema, e explique suas escolhas. Uma opção simples é usar Python com pip, FastAPI e um modelo via OpenRouter. O SDK Agents da OpenAI e outras ferramentas também são opções. São sugestões, não exigências.
 
 ## Escopo obrigatório
 
@@ -95,4 +95,4 @@ Cada dimensão recebe nota de 0 a 2: **0** = não demonstrado; **1** = parcial; 
 | Benefício para o negócio | Premissas e cálculos de custo, economia e retorno |
 | Execução e comunicação | Projeto executável, decisões explicadas e limitações reconhecidas |
 
-Não serão avaliadas a linguagem, a escolha do fornecedor de inteligência artificial ou a ferramenta de visualização. A disponibilidade da BrasilAPI no dia da apresentação também não será avaliada.
+Não há preferência por uma ferramenta específica. Avaliaremos se as escolhas são adequadas ao problema e se foram bem justificadas. A disponibilidade da BrasilAPI no dia da apresentação não afetará a avaliação.
